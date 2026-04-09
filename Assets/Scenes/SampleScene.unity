@@ -703,10 +703,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMove
   speed: 5
-  runSpeed: 10
+  runSpeed: 8
   rotSpeed: 16
   isRun: 0
-  dashSpeed: 10
+  dashSpeed: 4
   dashCooldown: 2
   dashDuration: 1.5
   attackDuration: 1

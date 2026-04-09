@@ -7,14 +7,14 @@ public class PlayerMove : MonoBehaviour
     private Animator animator;
 
     public float speed = 5f;
-    public float runSpeed = 10f;
+    public float runSpeed = 8f;
     public float rotSpeed = 16f;
 
     public bool isRun = false;
 
-    public float dashSpeed = 10f;
+    public float dashSpeed = 4f;
     public float dashCooldown = 2f;
-    public float dashDuration = 1.25f;
+    public float dashDuration = 1.5f;
 
     public float attackDuration = 1.0f;
 
