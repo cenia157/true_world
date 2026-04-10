@@ -397,7 +397,7 @@ Transform:
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
   m_LocalRotation: {x: 0.30070576, y: -0, z: -0, w: 0.953717}
-  m_LocalPosition: {x: 0, y: 8, z: -6}
+  m_LocalPosition: {x: 0, y: 10, z: -8}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -458,9 +458,18 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ea05055a8795f304b905f84d80204ea1, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CameraFollow
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerCameraController
   target: {fileID: 1738195380}
-  offset: {x: 0, y: 6, z: -6}
+  mouseSensitivity: 3
+  targetOffset: {x: 0, y: 3, z: 0}
+  distance: 10
+  minPitch: -40
+  maxPitch: 60
+  collisionMask:
+    serializedVersion: 2
+    m_Bits: 1
+  collisionRadius: 0.3
+  collisionOffset: 0.2
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -909,13 +918,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d7b259822a8cf449bd48fab4c51b549, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMove
-  rotSpeed: 16
-  speed: 5
-  isRun: 0
+  walkSpeed: 5
   runSpeed: 8
+  rotationSpeed: 16
   dodgeCooldown: 2
-  dodgeSpeed: 4
-  dodgeDuration: 1.5
+  dodgeSpeed: 6
+  dodgeDuration: 1.25
   attackDuration: 1
 --- !u!4 &1738195380
 Transform:
