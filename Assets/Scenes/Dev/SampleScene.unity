@@ -353,6 +353,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterStat
   maxHp: 30
+  strength: 10
+  defense: 2
 --- !u!114 &134279112
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1277,7 +1279,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a924b72dd1c820f48ba46fe326e435f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonsterAttackHitbox
-  damage: 10
 --- !u!65 &1561290770
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1442,10 +1443,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1738195377}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5bb05b03f455c014698867603914886e, type: 3}
+  m_Script: {fileID: 11500000, guid: d779097e77ff2804082518c40901dbba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStat
   maxHp: 100
+  strength: 10
+  defense: 5
 --- !u!1 &1743759605
 GameObject:
   m_ObjectHideFlags: 0
@@ -1491,7 +1494,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66549417d8770734ba71edbc84b4179b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponHitBox
-  damage: 10
 --- !u!65 &1743759608
 BoxCollider:
   m_ObjectHideFlags: 0

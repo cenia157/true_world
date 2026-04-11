@@ -2,10 +2,10 @@ using UnityEngine;
 
 public class MonsterAttackHitbox : MonoBehaviour
 {
-    [SerializeField] private int damage = 10;
-
     private Collider hitCol;
     private bool hasHit = false;
+
+    private MonsterStat ownerStat;
 
     private void Start()
     {
@@ -18,6 +18,11 @@ public class MonsterAttackHitbox : MonoBehaviour
         }
 
         hitCol.enabled = false;
+    }
+
+    public void Init(MonsterStat stat)
+    {
+        ownerStat = stat;
     }
 
     public void EnableHitbox()
@@ -42,11 +47,16 @@ public class MonsterAttackHitbox : MonoBehaviour
     {
         if (hitCol == null || !hitCol.enabled) return;
         if (hasHit) return;
+        if (ownerStat == null) return;
+        if (ownerStat.IsDead()) return;
 
         PlayerStat playerStat = other.GetComponentInParent<PlayerStat>();
         if (playerStat == null) return;
+        if (playerStat.IsDead()) return;
 
         hasHit = true;
+
+        int damage = ownerStat.GetStrength();
         playerStat.TakeDamage(damage);
     }
 }

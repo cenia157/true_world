@@ -5,9 +5,17 @@ public class PlayerCombat : MonoBehaviour
     [Header("WeaponHitBox")]
     [SerializeField] private WeaponHitbox currentWeaponHitbox;
 
-    public void SetWeaponHitbox(WeaponHitbox weaponHitbox)
+    private PlayerStat playerStat;
+
+    private void Awake()
     {
-        currentWeaponHitbox = weaponHitbox;
+        playerStat = GetComponent<PlayerStat>();
+
+        // 🔥 여기 추가
+        if (currentWeaponHitbox != null)
+        {
+            currentWeaponHitbox.Init(playerStat);
+        }
     }
 
     public void EnableAttackHitbox()

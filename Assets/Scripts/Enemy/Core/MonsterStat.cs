@@ -2,9 +2,14 @@ using UnityEngine;
 
 public class MonsterStat : MonoBehaviour
 {
+    [Header("HP")]
     [SerializeField] private int maxHp = 30;
-
     private int currentHp;
+
+    [Header("Stats")]
+    [SerializeField] private int strength = 10;
+    [SerializeField] private int defense = 2;
+
     private bool isDead = false;
 
     private void Start()
@@ -16,11 +21,14 @@ public class MonsterStat : MonoBehaviour
     {
         if (isDead) return;
 
-        currentHp -= damage;
-        Debug.Log($"{gameObject.name} 피격! 남은 체력: {currentHp}");
+        int finalDamage = Mathf.Max(damage - defense, 1);
+        currentHp -= finalDamage;
+
+        Debug.Log($"{gameObject.name} 피격! 받은 데미지: {finalDamage}, 남은 체력: {currentHp}");
 
         if (currentHp <= 0)
         {
+            currentHp = 0;
             Die();
         }
     }
@@ -36,5 +44,15 @@ public class MonsterStat : MonoBehaviour
     public bool IsDead()
     {
         return isDead;
+    }
+
+    public int GetCurrentHp()
+    {
+        return currentHp;
+    }
+
+    public int GetStrength()
+    {
+        return strength;
     }
 }

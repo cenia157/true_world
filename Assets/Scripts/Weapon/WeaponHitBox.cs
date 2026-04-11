@@ -3,8 +3,9 @@ using UnityEngine;
 
 public class WeaponHitbox : MonoBehaviour
 {
-    public int damage = 10;
     private Collider hitCol;
+
+    private PlayerStat ownerStat;
 
     private HashSet<MonsterStat> hitMonsters = new HashSet<MonsterStat>();
 
@@ -12,6 +13,11 @@ public class WeaponHitbox : MonoBehaviour
     {
         hitCol = GetComponent<Collider>();
         hitCol.enabled = false;
+    }
+
+    public void Init(PlayerStat stat)
+    {
+        ownerStat = stat;
     }
 
     public void EnableHitbox()
@@ -28,6 +34,7 @@ public class WeaponHitbox : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (!hitCol.enabled) return;
+        if (ownerStat == null) return;
 
         MonsterStat monster = other.GetComponent<MonsterStat>();
         if (monster == null) return;
@@ -35,6 +42,8 @@ public class WeaponHitbox : MonoBehaviour
         if (hitMonsters.Contains(monster)) return;
 
         hitMonsters.Add(monster);
+
+        int damage = ownerStat.GetStrength();
         monster.TakeDamage(damage);
     }
 }
