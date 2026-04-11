@@ -6,7 +6,7 @@ public class WeaponHitbox : MonoBehaviour
     public int damage = 10;
     private Collider hitCol;
 
-    private HashSet<Monster> hitMonsters = new HashSet<Monster>();
+    private HashSet<MonsterStat> hitMonsters = new HashSet<MonsterStat>();
 
     void Start()
     {
@@ -29,7 +29,7 @@ public class WeaponHitbox : MonoBehaviour
     {
         if (!hitCol.enabled) return;
 
-        Monster monster = other.GetComponent<Monster>();
+        MonsterStat monster = other.GetComponent<MonsterStat>();
         if (monster == null) return;
 
         if (hitMonsters.Contains(monster)) return;
