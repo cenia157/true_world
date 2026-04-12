@@ -57,6 +57,6 @@ public class MonsterAttackHitbox : MonoBehaviour
         hasHit = true;
 
         int damage = ownerStat.GetStrength();
-        playerStat.TakeDamage(damage);
+        playerStat.TakeDamage(damage, ownerStat.transform);
     }
 }

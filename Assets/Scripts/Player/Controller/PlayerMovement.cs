@@ -6,37 +6,52 @@ public class PlayerMovement : MonoBehaviour
     private Rigidbody rb;
     private Animator animator;
     private PlayerCameraController cameraController;
+    private PlayerStat playerStat;
 
     private Vector3 moveInput;
     private Vector3 moveDirection;
+    private Vector3 dodgeDirection;
 
     [Header("Move")]
     [SerializeField] private float walkSpeed = 5f;
     [SerializeField] private float runSpeed = 8f;
     [SerializeField] private float rotationSpeed = 16f;
 
-    [Header("Dodge")]
-    [SerializeField] private float dodgeCooldown = 2f;
-    [SerializeField] private float dodgeSpeed = 8f;
-    [SerializeField] private float dodgeDuration = 0.5f;
-
     private bool isRun;
+    private bool runLocked = false;
+    [Header("Run Stamina")]
+    [SerializeField] private float runStaminaCostPerSecond = 25f;
+    [SerializeField] private float minStaminaToStartRun = 20f;
+
     private bool isDodge;
-    private Vector3 dodgeDirection;
     private float lastDodgeTime = -999f;
     private float dodgeEndTime;
-
-    [Header("Attack")]
-    [SerializeField] private float attackDuration = 1.0f;
+    [Header("Dodge")]
+    [SerializeField] private float dodgeCooldown = 0.5f;
+    [SerializeField] private float dodgeSpeed = 6f;
+    [SerializeField] private float dodgeDuration = 1.25f;
+    [SerializeField] private float dodgeStaminaCost = 30f;
 
     private bool isAttacking;
     private float attackEndTime;
+    [Header("Attack")]
+    [SerializeField] private float attackDuration = 1.0f;
+    [SerializeField] private float attackStaminaCost = 15f;
+
+    private bool isGuarding;
+    private bool guardLocked = false;
+    private float guardEndTime;
+    [Header("Guard")]
+    [SerializeField] private float guardStaminaCostPerSecond = 50f;
+    [SerializeField] private float guardDuration = 1.0f;
+    [SerializeField] private float minStaminaToStartGuard = 25f;
 
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
         animator = GetComponentInChildren<Animator>();
         cameraController = Camera.main.GetComponent<PlayerCameraController>();
+        playerStat = GetComponent<PlayerStat>();
 
         if (animator == null)
         {
@@ -46,6 +61,11 @@ public class PlayerMovement : MonoBehaviour
         if (cameraController == null)
         {
             Debug.LogError("Main Camera에 PlayerCameraController가 없습니다.");
+        }
+
+        if (playerStat == null)
+        {
+            Debug.LogError("PlayerStat을 찾지 못했습니다.");
         }
     }
 
@@ -69,12 +89,25 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
+        if (isGuarding)
+        {
+            return;
+        }
+
         Move();
         Rotate();
     }
 
     private void HandleInput()
     {
+        UpdateGuardLock();
+
+        // 우클릭 1회로 가드 시작
+        if (Input.GetMouseButtonDown(1))
+        {
+            TryStartGuard();
+        }
+
         if (isDodge || isAttacking)
             return;
 
@@ -82,18 +115,98 @@ public class PlayerMovement : MonoBehaviour
         float z = Input.GetAxisRaw("Vertical");
 
         moveInput = new Vector3(x, 0f, z).normalized;
-        isRun = Input.GetKey(KeyCode.LeftShift);
+
+        bool runKey = Input.GetKey(KeyCode.LeftShift);
+        bool hasMoveInput = moveInput.sqrMagnitude > 0.0001f;
 
         UpdateMoveDirection();
+        UpdateRunLock();
+
+        isRun = runKey && hasMoveInput && !runLocked && !isGuarding;
+
+        HandleRunStamina();
+        HandleGuardStamina();
+
+        if (isGuarding)
+            return;
 
         if (Input.GetButtonDown("Jump") && Time.time >= lastDodgeTime + dodgeCooldown)
         {
-            StartDodge();
+            if (playerStat != null && playerStat.TakeStamina(dodgeStaminaCost))
+            {
+                StartDodge();
+            }
         }
 
         if (Input.GetMouseButtonDown(0))
         {
             StartAttack();
+        }
+    }
+
+    private void TryStartGuard()
+    {
+        if (playerStat == null) return;
+        if (isGuarding) return;
+        if (isDodge || isAttacking) return;
+        if (guardLocked) return;
+
+        if (playerStat.GetCurrentStamina() < minStaminaToStartGuard)
+            return;
+
+        isGuarding = true;
+        guardEndTime = Time.time + guardDuration;
+
+        playerStat.SetGuarding(true);
+
+        if (animator != null)
+        {
+            animator.SetBool("isGuarding", true);
+        }
+
+        Debug.Log("가드 시작");
+    }
+
+    private void EndGuard()
+    {
+        isGuarding = false;
+
+        if (playerStat != null)
+        {
+            playerStat.SetGuarding(false);
+        }
+
+        if (animator != null)
+        {
+            animator.SetBool("isGuarding", false);
+        }
+
+        Debug.Log("가드 종료");
+    }
+
+    private void HandleRunStamina()
+    {
+        if (!isRun) return;
+        if (playerStat == null) return;
+
+        bool success = playerStat.TakeStamina(runStaminaCostPerSecond * Time.deltaTime);
+
+        if (!success)
+        {
+            isRun = false;
+            runLocked = true;
+        }
+    }
+
+    private void UpdateRunLock()
+    {
+        if (playerStat == null) return;
+
+        float currentStamina = playerStat.GetCurrentStamina();
+
+        if (runLocked && currentStamina >= minStaminaToStartRun)
+        {
+            runLocked = false;
         }
     }
 
@@ -107,6 +220,11 @@ public class PlayerMovement : MonoBehaviour
         if (isAttacking && Time.time >= attackEndTime)
         {
             EndAttack();
+        }
+
+        if (isGuarding && Time.time >= guardEndTime)
+        {
+            EndGuard();
         }
     }
 
@@ -147,6 +265,16 @@ public class PlayerMovement : MonoBehaviour
 
     private void StartDodge()
     {
+        if (isGuarding)
+        {
+            EndGuard();
+        }
+
+        if (playerStat != null)
+        {
+            playerStat.SetInvincible(true);
+        }
+
         Vector3 baseDirection = moveDirection.sqrMagnitude > 0.0001f ? moveDirection : transform.forward;
 
         isDodge = true;
@@ -171,10 +299,26 @@ public class PlayerMovement : MonoBehaviour
     {
         isDodge = false;
         dodgeDirection = Vector3.zero;
+
+        if (playerStat != null)
+        {
+            playerStat.SetInvincible(false);
+        }
     }
 
     private void StartAttack()
     {
+        if (playerStat == null) return;
+        if (isGuarding) return;
+
+        playerStat.SetInvincible(false);
+
+        if (!playerStat.TakeStamina(attackStaminaCost))
+        {
+            Debug.Log("스태미너 부족 - 공격 불가");
+            return;
+        }
+
         isAttacking = true;
         attackEndTime = Time.time + attackDuration;
 
@@ -187,6 +331,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (animator != null)
         {
+            animator.SetBool("isGuarding", false);
             animator.SetTrigger("Attack");
         }
     }
@@ -194,6 +339,34 @@ public class PlayerMovement : MonoBehaviour
     private void EndAttack()
     {
         isAttacking = false;
+    }
+
+    private void HandleGuardStamina()
+    {
+        if (!isGuarding) return;
+        if (playerStat == null) return;
+
+        bool success = playerStat.TakeStamina(guardStaminaCostPerSecond * Time.deltaTime);
+
+        if (!success)
+        {
+            guardLocked = true;
+            EndGuard();
+
+            Debug.Log("스태미너 부족 → 가드 해제");
+        }
+    }
+
+    private void UpdateGuardLock()
+    {
+        if (playerStat == null) return;
+
+        float currentStamina = playerStat.GetCurrentStamina();
+
+        if (guardLocked && currentStamina >= minStaminaToStartGuard)
+        {
+            guardLocked = false;
+        }
     }
 
     private void UpdateAnimation()
