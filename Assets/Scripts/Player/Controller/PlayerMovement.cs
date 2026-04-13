@@ -46,6 +46,12 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float guardDuration = 1.0f;
     [SerializeField] private float minStaminaToStartGuard = 25f;
 
+    [Header("HitStun")]
+    [SerializeField] private float hitStunDuration = 0.5f;
+
+    private bool isHitStunned = false;
+    private float hitStunEndTime = -999f;
+
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -78,6 +84,11 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (isHitStunned)
+        {
+            return;
+        }
+
         if (isDodge)
         {
             rb.MovePosition(rb.position + dodgeDirection * dodgeSpeed * Time.fixedDeltaTime);
@@ -100,9 +111,11 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleInput()
     {
+        if (isHitStunned)
+            return;
+
         UpdateGuardLock();
 
-        // 우클릭 1회로 가드 시작
         if (Input.GetMouseButtonDown(1))
         {
             TryStartGuard();
@@ -148,7 +161,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (playerStat == null) return;
         if (isGuarding) return;
-        if (isDodge || isAttacking) return;
+        if (isDodge || isAttacking || isHitStunned) return;
         if (guardLocked) return;
 
         if (playerStat.GetCurrentStamina() < minStaminaToStartGuard)
@@ -225,6 +238,11 @@ public class PlayerMovement : MonoBehaviour
         if (isGuarding && Time.time >= guardEndTime)
         {
             EndGuard();
+        }
+
+        if (isHitStunned && Time.time >= hitStunEndTime)
+        {
+            EndHitStun();
         }
     }
 
@@ -309,7 +327,7 @@ public class PlayerMovement : MonoBehaviour
     private void StartAttack()
     {
         if (playerStat == null) return;
-        if (isGuarding) return;
+        if (isGuarding || isHitStunned) return;
 
         playerStat.SetInvincible(false);
 
@@ -369,12 +387,55 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    public void StartHitStun()
+    {
+        StartHitStun(hitStunDuration);
+    }
+
+    public void StartHitStun(float duration)
+    {
+        if (isDeadLikeState())
+            return;
+
+        if (isGuarding)
+        {
+            EndGuard();
+        }
+
+        isRun = false;
+        isAttacking = false;
+        isHitStunned = true;
+        hitStunEndTime = Time.time + duration;
+
+        moveInput = Vector3.zero;
+        moveDirection = Vector3.zero;
+        dodgeDirection = Vector3.zero;
+
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+    }
+
+    private void EndHitStun()
+    {
+        isHitStunned = false;
+    }
+
+    public bool IsHitStunned()
+    {
+        return isHitStunned;
+    }
+
+    private bool isDeadLikeState()
+    {
+        return isDodge;
+    }
+
     private void UpdateAnimation()
     {
         if (animator == null)
             return;
 
-        if (isDodge || isAttacking)
+        if (isDodge || isAttacking || isHitStunned)
         {
             animator.SetFloat("Speed", 0f);
             return;

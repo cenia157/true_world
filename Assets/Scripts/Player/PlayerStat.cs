@@ -23,10 +23,21 @@ public class PlayerStat : MonoBehaviour
     private bool isInvincible = false;
     private bool isGuarding = false;
 
+    private Animator animator;
+    private PlayerMovement playerMovement;
+
     private void Start()
     {
         currentHp = maxHp;
         currentStamina = maxStamina;
+
+        animator = GetComponentInChildren<Animator>();
+        playerMovement = GetComponent<PlayerMovement>();
+
+        if (animator == null)
+        {
+            Debug.LogError("PlayerStat: Animator를 찾지 못했습니다.");
+        }
     }
 
     private void Update()
@@ -51,6 +62,14 @@ public class PlayerStat : MonoBehaviour
         int finalDamage = Mathf.Max(damage - defense, 1);
         currentHp -= finalDamage;
 
+        bool alreadyHitStunned = playerMovement != null && playerMovement.IsHitStunned();
+
+        if (!alreadyHitStunned)
+        {
+            PlayHitAnimation();
+            playerMovement?.StartHitStun(0.5f);
+        }
+
         Debug.Log($"플레이어 피격! 받은 데미지: {finalDamage}, 남은 체력: {currentHp}");
 
         if (currentHp <= 0)
@@ -66,10 +85,12 @@ public class PlayerStat : MonoBehaviour
         if (isInvincible) return;
 
         int finalDamage = damage;
+        bool guardSuccess = false;
 
         if (isGuarding && attacker != null && IsFrontGuardSuccess(attacker))
         {
             finalDamage = Mathf.RoundToInt(damage * guardDamageMultiplier);
+            guardSuccess = true;
             Debug.Log("정면 가드 성공");
         }
         else if (isGuarding)
@@ -80,6 +101,26 @@ public class PlayerStat : MonoBehaviour
         finalDamage = Mathf.Max(finalDamage - defense, 1);
         currentHp -= finalDamage;
 
+        bool alreadyHitStunned = playerMovement != null && playerMovement.IsHitStunned();
+
+        if (guardSuccess)
+        {
+            // 가드 성공 시에는 가드 피격 애니메이션만 재생
+            if (!alreadyHitStunned)
+            {
+                PlayGuardHitAnimation();
+            }
+        }
+        else
+        {
+            // 가드 실패 or 일반 피격
+            if (!alreadyHitStunned)
+            {
+                PlayHitAnimation();
+                playerMovement?.StartHitStun(0.5f);
+            }
+        }
+
         Debug.Log($"플레이어 피격! 받은 데미지: {finalDamage}, 남은 체력: {currentHp}");
 
         if (currentHp <= 0)
@@ -87,6 +128,24 @@ public class PlayerStat : MonoBehaviour
             currentHp = 0;
             Die();
         }
+    }
+
+    private void PlayHitAnimation()
+    {
+        if (animator == null) return;
+
+        animator.ResetTrigger("GuardHit");
+        animator.ResetTrigger("Hit");
+        animator.SetTrigger("Hit");
+    }
+
+    private void PlayGuardHitAnimation()
+    {
+        if (animator == null) return;
+
+        animator.ResetTrigger("Hit");
+        animator.ResetTrigger("GuardHit");
+        animator.SetTrigger("GuardHit");
     }
 
     private bool IsFrontGuardSuccess(Transform attacker)
@@ -116,6 +175,11 @@ public class PlayerStat : MonoBehaviour
     public void SetInvincible(bool value)
     {
         isInvincible = value;
+    }
+
+    public bool IsInvincible()
+    {
+        return isInvincible;
     }
 
     public void SetGuarding(bool value)
