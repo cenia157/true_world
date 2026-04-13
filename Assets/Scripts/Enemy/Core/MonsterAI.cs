@@ -14,12 +14,25 @@ public class MonsterAI : MonoBehaviour
     [Header("Attack")]
     [SerializeField] private float attackCooldown = 2f;
 
+    [Header("Hit Reaction")]
+    [SerializeField] private float hitStunDuration = 0.3f;
+    [SerializeField] private float knockbackDistance = 1.0f;
+    [SerializeField] private float knockbackDuration = 0.15f;
+
     private NavMeshAgent agent;
     private MonsterStat monsterStat;
     private Animator animator;
 
     private float lastAttackTime = -999f;
     private bool isAttacking = false;
+
+    private bool isHitStunned = false;
+    private float hitStunEndTime = -999f;
+
+    private bool isKnockback = false;
+    private float knockbackEndTime = -999f;
+    private Vector3 knockbackDirection = Vector3.zero;
+    private float knockbackSpeed = 0f;
 
     private void Start()
     {
@@ -52,6 +65,15 @@ public class MonsterAI : MonoBehaviour
         if (target == null) return;
 
         if (monsterStat != null && monsterStat.IsDead())
+        {
+            StopMoving();
+            UpdateAnimation();
+            return;
+        }
+
+        HandleHitReaction();
+
+        if (isHitStunned || isKnockback)
         {
             StopMoving();
             UpdateAnimation();
@@ -95,6 +117,34 @@ public class MonsterAI : MonoBehaviour
         UpdateAnimation();
     }
 
+    private void HandleHitReaction()
+    {
+        if (isKnockback)
+        {
+            Vector3 move = knockbackDirection * knockbackSpeed * Time.deltaTime;
+
+            // 🔥 핵심: NavMeshAgent로 이동
+            if (agent != null && agent.isOnNavMesh)
+            {
+                agent.Move(move);
+            }
+            else
+            {
+                transform.position += move;
+            }
+
+            if (Time.time >= knockbackEndTime)
+            {
+                isKnockback = false;
+            }
+        }
+
+        if (isHitStunned && Time.time >= hitStunEndTime)
+        {
+            isHitStunned = false;
+        }
+    }
+
     private void ChaseTarget()
     {
         if (!agent.isOnNavMesh) return;
@@ -130,7 +180,7 @@ public class MonsterAI : MonoBehaviour
     {
         if (animator == null) return;
 
-        if (!agent.isOnNavMesh || isAttacking)
+        if (!agent.isOnNavMesh || isAttacking || isHitStunned || isKnockback)
         {
             animator.SetFloat("Speed", 0f);
             return;
@@ -149,6 +199,8 @@ public class MonsterAI : MonoBehaviour
 
     public void StartAttack()
     {
+        if (isHitStunned || isKnockback) return;
+
         isAttacking = true;
         StopMoving();
     }
@@ -156,5 +208,35 @@ public class MonsterAI : MonoBehaviour
     public void EndAttack()
     {
         isAttacking = false;
+    }
+
+    public void StartHitReaction(Transform attacker)
+    {
+        if (monsterStat != null && monsterStat.IsDead()) return;
+
+        isAttacking = false;
+        isHitStunned = true;
+        hitStunEndTime = Time.time + hitStunDuration;
+
+        if (attacker != null)
+        {
+            Vector3 dir = transform.position - attacker.position;
+            dir.y = 0f;
+
+            if (dir.sqrMagnitude > 0.0001f)
+            {
+                knockbackDirection = dir.normalized;
+                knockbackSpeed = knockbackDistance / knockbackDuration;
+                isKnockback = true;
+                knockbackEndTime = Time.time + knockbackDuration;
+            }
+        }
+
+        StopMoving();
+    }
+
+    public bool IsHitStunned()
+    {
+        return isHitStunned || isKnockback;
     }
 }

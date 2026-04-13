@@ -33,6 +33,11 @@ public class CharacterStat : MonoBehaviour
         }
     }
 
+    public virtual void TakePhysicalDamage(int damage, Transform attacker)
+    {
+        TakePhysicalDamage(damage);
+    }
+
     public virtual void TakeMagicDamage(int damage)
     {
         if (isDead) return;
@@ -53,5 +58,25 @@ public class CharacterStat : MonoBehaviour
     {
         isDead = true;
         Debug.Log($"{gameObject.name} died.");
+    }
+
+    public bool IsDead()
+    {
+        return isDead;
+    }
+
+    public int GetCurrentHp()
+    {
+        return currentHp;
+    }
+
+    public int GetMaxHp()
+    {
+        return maxHp;
+    }
+
+    public int GetStrength()
+    {
+        return strength;
     }
 }

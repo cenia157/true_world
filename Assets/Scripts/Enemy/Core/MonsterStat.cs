@@ -1,58 +1,27 @@
 using UnityEngine;
 
-public class MonsterStat : MonoBehaviour
+public class MonsterStat : CharacterStat
 {
-    [Header("HP")]
-    [SerializeField] private int maxHp = 30;
-    private int currentHp;
+    private MonsterAI monsterAI;
 
-    [Header("Stats")]
-    [SerializeField] private int strength = 10;
-    [SerializeField] private int defense = 2;
-
-    private bool isDead = false;
-
-    private void Start()
+    protected override void Start()
     {
-        currentHp = maxHp;
+        base.Start();
+        monsterAI = GetComponent<MonsterAI>();
     }
 
-    public void TakeDamage(int damage)
+    public override void TakePhysicalDamage(int damage, Transform attacker)
     {
         if (isDead) return;
 
-        int finalDamage = Mathf.Max(damage - defense, 1);
-        currentHp -= finalDamage;
-
-        Debug.Log($"{gameObject.name} 피격! 받은 데미지: {finalDamage}, 남은 체력: {currentHp}");
-
-        if (currentHp <= 0)
-        {
-            currentHp = 0;
-            Die();
-        }
+        base.TakePhysicalDamage(damage);
+        monsterAI?.StartHitReaction(attacker);
     }
 
-    private void Die()
+    protected override void Die()
     {
-        isDead = true;
+        base.Die();
         Debug.Log($"{gameObject.name} 사망");
-
         Destroy(gameObject);
-    }
-
-    public bool IsDead()
-    {
-        return isDead;
-    }
-
-    public int GetCurrentHp()
-    {
-        return currentHp;
-    }
-
-    public int GetStrength()
-    {
-        return strength;
     }
 }

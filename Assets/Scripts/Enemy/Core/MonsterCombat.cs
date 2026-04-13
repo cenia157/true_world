@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class MonsterCombat : MonoBehaviour
 {
-    [SerializeField] private MonsterAttackHitbox attackHitbox;
+    [SerializeField] private MonsterWeaponHitBox attackHitbox;
 
     private MonsterStat monsterStat;
 
