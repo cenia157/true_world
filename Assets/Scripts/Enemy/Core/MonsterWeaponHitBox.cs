@@ -27,6 +27,9 @@ public class MonsterWeaponHitBox : WeaponHitBox
         if (playerStat == null) return;
         if (playerStat.IsDead()) return;
 
+        // 🔥 구르기 무적 등 무적 상태면 데미지도 이펙트도 없음
+        if (playerStat.IsInvincible()) return;
+
         hasHit = true;
 
         int damage = ownerStat.GetStrength();
