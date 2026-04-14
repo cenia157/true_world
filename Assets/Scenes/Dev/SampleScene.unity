@@ -580,6 +580,7 @@ MonoBehaviour:
   hitStunDuration: 0.3
   knockbackDistance: 0.8
   knockbackDuration: 0.15
+  superArmorChanceDuringAttack: 0.2
 --- !u!195 &134279113
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -702,39 +703,39 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 7c2cf2d218ac6fb4f821c182faf0a4df, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.4
+      value: 0.25
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 7c2cf2d218ac6fb4f821c182faf0a4df, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.2
+      value: -0.25
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 7c2cf2d218ac6fb4f821c182faf0a4df, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 0.25
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 7c2cf2d218ac6fb4f821c182faf0a4df, type: 3}
       propertyPath: m_LocalRotation.w
-      value: -0.17485556
+      value: -0.34618863
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 7c2cf2d218ac6fb4f821c182faf0a4df, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.65257
+      value: 0.742404
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 7c2cf2d218ac6fb4f821c182faf0a4df, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0.19082138
+      value: -0.24240384
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 7c2cf2d218ac6fb4f821c182faf0a4df, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0.7121553
+      value: -0.5198367
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 7c2cf2d218ac6fb4f821c182faf0a4df, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 210
+      value: 230
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 7c2cf2d218ac6fb4f821c182faf0a4df, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 95
+      value: 70
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 7c2cf2d218ac6fb4f821c182faf0a4df, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -1366,6 +1367,11 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_RenderingLayers: 1
   m_ShadowRenderingLayers: 1
+--- !u!4 &421318996 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -6874584590210671055, guid: 186b5ce3f91a09c41acaa4edbd726243, type: 3}
+  m_PrefabInstance: {fileID: 1945922160}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &539688336
 GameObject:
   m_ObjectHideFlags: 0
@@ -1510,6 +1516,73 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 186b5ce3f91a09c41acaa4edbd726243, type: 3}
   m_PrefabInstance: {fileID: 1945922160}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &798117212
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 798117213}
+  - component: {fileID: 798117215}
+  - component: {fileID: 798117214}
+  m_Layer: 0
+  m_Name: HitBox
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &798117213
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 798117212}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2029655537}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &798117214
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 798117212}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66549417d8770734ba71edbc84b4179b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerWeaponHitBox
+  hitEffectPrefab: {fileID: 6982263153641847612, guid: 36a3ddd9e9258474aa29a08939eeda45, type: 3}
+--- !u!65 &798117215
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 798117212}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.3, y: 0.5, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &808374783
 GameObject:
   m_ObjectHideFlags: 0
@@ -2260,6 +2333,7 @@ MonoBehaviour:
   hitStunDuration: 0.3
   knockbackDistance: 0.8
   knockbackDuration: 0.15
+  superArmorChanceDuringAttack: 0.2
 --- !u!195 &1297954869
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -2952,8 +3026,6 @@ MonoBehaviour:
   dodgeSpeed: 6
   dodgeDuration: 1.25
   dodgeStaminaCost: 30
-  attackDuration: 1
-  attackStaminaCost: 15
   guardStaminaCostPerSecond: 50
   guardDuration: 1
   minStaminaToStartGuard: 25
@@ -3010,6 +3082,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerCombat
   currentWeaponHitbox: {fileID: 1743759607}
+  kickHitbox: {fileID: 798117214}
+  maxComboStep: 3
+  attack1StaminaCost: 15
+  attack2StaminaCost: 15
+  attack3StaminaCost: 20
 --- !u!114 &1738195383
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3358,6 +3435,9 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: -6874584590210671055, guid: 186b5ce3f91a09c41acaa4edbd726243, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2029655537}
     - targetCorrespondingSourceObject: {fileID: 1852576806548013000, guid: 186b5ce3f91a09c41acaa4edbd726243, type: 3}
       insertIndex: -1
       addedObject: {fileID: 727466793}
@@ -3451,6 +3531,7 @@ MonoBehaviour:
   hitStunDuration: 0.3
   knockbackDistance: 0.8
   knockbackDuration: 0.15
+  superArmorChanceDuringAttack: 0.2
 --- !u!195 &1956654965
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -3537,6 +3618,38 @@ Transform:
   - {fileID: 123682269}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2029655536
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2029655537}
+  m_Layer: 0
+  m_Name: WeaponSocket
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2029655537
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2029655536}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0.38268343, z: 0.92387956, w: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 2, y: 1, z: 0.5}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 798117213}
+  m_Father: {fileID: 421318996}
+  m_LocalEulerAnglesHint: {x: -45, y: 0, z: 180}
 --- !u!1 &2084271312
 GameObject:
   m_ObjectHideFlags: 0

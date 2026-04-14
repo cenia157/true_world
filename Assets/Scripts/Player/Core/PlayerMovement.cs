@@ -23,7 +23,6 @@ public class PlayerMovement : MonoBehaviour
 
     // =========================================================
     // Runtime Cache Layer
-    // - 이동 표현용 캐시
     // =========================================================
     private bool isRun;
 
@@ -35,7 +34,6 @@ public class PlayerMovement : MonoBehaviour
     // =========================================================
     private float lastDodgeTime = -999f;
     private float dodgeEndTime;
-    private float attackEndTime;
     private float guardEndTime;
     private float hitStunEndTime = -999f;
 
@@ -62,13 +60,6 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float dodgeSpeed = 6f;
     [SerializeField] private float dodgeDuration = 1.25f;
     [SerializeField] private float dodgeStaminaCost = 30f;
-
-    // =========================================================
-    // Attack Config Layer
-    // =========================================================
-    [Header("Attack")]
-    [SerializeField] private float attackDuration = 1.0f;
-    [SerializeField] private float attackStaminaCost = 15f;
 
     // =========================================================
     // Guard Config Layer
@@ -157,11 +148,6 @@ public class PlayerMovement : MonoBehaviour
             EndDodge();
         }
 
-        if (stateController.IsState(PlayerState.Attack) && Time.time >= attackEndTime)
-        {
-            EndAttack();
-        }
-
         if (stateController.IsState(PlayerState.Guard) && Time.time >= guardEndTime)
         {
             EndGuard();
@@ -196,8 +182,8 @@ public class PlayerMovement : MonoBehaviour
 
         HandleGuardInput();
 
+        // Attack 상태에서는 콤보 입력 허용해야 하므로 return에서 제외
         if (stateController.IsState(PlayerState.Dodge) ||
-            stateController.IsState(PlayerState.Attack) ||
             stateController.IsState(PlayerState.Guard))
         {
             return;
@@ -253,12 +239,12 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleAttackInput()
     {
-        if (!stateController.CanAttack())
+        if (playerCombat == null)
             return;
 
         if (Input.GetMouseButtonDown(0))
         {
-            StartAttack();
+            playerCombat.OnAttackButtonPressed();
         }
     }
 
@@ -492,61 +478,6 @@ public class PlayerMovement : MonoBehaviour
     }
 
     // =========================================================
-    // Action Layer : Attack
-    // =========================================================
-    private void StartAttack()
-    {
-        if (playerStat == null) return;
-        if (playerCombat == null) return;
-        if (!stateController.CanAttack()) return;
-
-        playerStat.SetInvincible(false);
-
-        if (!playerStat.TakeStamina(attackStaminaCost))
-        {
-            Debug.Log("스태미너 부족 - 공격 불가");
-            return;
-        }
-
-        if (!stateController.ChangeState(PlayerState.Attack))
-            return;
-
-        attackEndTime = Time.time + attackDuration;
-
-        ResetMotionInput();
-        StopRigidBodyMotion();
-
-        playerCombat.StartAttack();
-
-        if (animator != null)
-        {
-            animator.SetBool("isGuarding", false);
-            animator.SetTrigger("Attack");
-        }
-    }
-
-    private void EndAttack()
-    {
-        playerCombat?.EndAttack();
-
-        if (stateController.IsState(PlayerState.Attack))
-        {
-            stateController.ChangeState(PlayerState.Idle);
-        }
-    }
-
-    public void NotifyAttackAnimationEnded()
-    {
-        if (stateController == null)
-            return;
-
-        if (stateController.IsState(PlayerState.Attack))
-        {
-            EndAttack();
-        }
-    }
-
-    // =========================================================
     // Action Layer : HitStun
     // =========================================================
     public void StartHitStun()
@@ -594,7 +525,6 @@ public class PlayerMovement : MonoBehaviour
 
     // =========================================================
     // Locomotion State Layer
-    // - Idle / Move / Run 상태 갱신
     // =========================================================
     private void UpdateLocomotionState()
     {

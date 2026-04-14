@@ -6,6 +6,11 @@ public class MonsterCombat : MonoBehaviour
 
     private MonsterStat monsterStat;
 
+    // =========================================================
+    // Attack State
+    // =========================================================
+    private bool isAttackActive = false;
+
     private void Start()
     {
         monsterStat = GetComponent<MonsterStat>();
@@ -23,15 +28,57 @@ public class MonsterCombat : MonoBehaviour
         }
 
         attackHitbox.Init(monsterStat);
+        attackHitbox.DisableHitbox();
     }
 
+    // =========================================================
+    // Attack Lifecycle
+    // =========================================================
+    public void StartAttack()
+    {
+        isAttackActive = true;
+        DisableAttackHitbox();
+
+        Debug.Log("MonsterCombat: 공격 시작");
+    }
+
+    public void EndAttack()
+    {
+        if (!isAttackActive)
+            return;
+
+        isAttackActive = false;
+        DisableAttackHitbox();
+
+        Debug.Log("MonsterCombat: 공격 정상 종료");
+    }
+
+    public void CancelAttack()
+    {
+        isAttackActive = false;
+        DisableAttackHitbox();
+
+        Debug.Log("MonsterCombat: 공격 강제 취소");
+    }
+
+    // =========================================================
+    // Hitbox Control
+    // =========================================================
     public void EnableAttackHitbox()
     {
+        if (!isAttackActive)
+            return;
+
         attackHitbox?.EnableHitbox();
     }
 
     public void DisableAttackHitbox()
     {
         attackHitbox?.DisableHitbox();
+    }
+
+    public bool IsAttackActive()
+    {
+        return isAttackActive;
     }
 }

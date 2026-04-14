@@ -19,9 +19,14 @@ public class MonsterAI : MonoBehaviour
     [SerializeField] private float knockbackDistance = 1.0f;
     [SerializeField] private float knockbackDuration = 0.15f;
 
+    [Header("Super Armor")]
+    [Range(0f, 1f)]
+    [SerializeField] private float superArmorChanceDuringAttack = 0.5f;
+
     private NavMeshAgent agent;
     private MonsterStat monsterStat;
     private Animator animator;
+    private MonsterCombat monsterCombat;
 
     private float lastAttackTime = -999f;
     private bool isAttacking = false;
@@ -39,6 +44,7 @@ public class MonsterAI : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         monsterStat = GetComponent<MonsterStat>();
         animator = GetComponentInChildren<Animator>();
+        monsterCombat = GetComponent<MonsterCombat>();
 
         if (target == null)
         {
@@ -57,6 +63,11 @@ public class MonsterAI : MonoBehaviour
         if (animator == null)
         {
             Debug.LogError("MonsterAI: Animator를 찾지 못했습니다.");
+        }
+
+        if (monsterCombat == null)
+        {
+            Debug.LogError("MonsterAI: MonsterCombat를 찾지 못했습니다.");
         }
     }
 
@@ -98,6 +109,7 @@ public class MonsterAI : MonoBehaviour
             {
                 lastAttackTime = Time.time;
                 isAttacking = true;
+                monsterCombat?.StartAttack();
 
                 if (animator != null)
                 {
@@ -123,7 +135,6 @@ public class MonsterAI : MonoBehaviour
         {
             Vector3 move = knockbackDirection * knockbackSpeed * Time.deltaTime;
 
-            // 🔥 핵심: NavMeshAgent로 이동
             if (agent != null && agent.isOnNavMesh)
             {
                 agent.Move(move);
@@ -202,19 +213,36 @@ public class MonsterAI : MonoBehaviour
         if (isHitStunned || isKnockback) return;
 
         isAttacking = true;
+        monsterCombat?.StartAttack();
         StopMoving();
     }
 
     public void EndAttack()
     {
         isAttacking = false;
+        monsterCombat?.EndAttack();
     }
 
     public void StartHitReaction(Transform attacker)
     {
         if (monsterStat != null && monsterStat.IsDead()) return;
 
+        // 공격 중에는 확률적으로 슈퍼아머 발동
+        if (isAttacking)
+        {
+            bool superArmorTriggered = Random.value < superArmorChanceDuringAttack;
+
+            if (superArmorTriggered)
+            {
+                Debug.Log($"{gameObject.name}: 슈퍼아머 발동");
+                return;
+            }
+        }
+
+        // 슈퍼아머 실패 시 기존처럼 공격 취소 + 경직
         isAttacking = false;
+        monsterCombat?.CancelAttack();
+
         isHitStunned = true;
         hitStunEndTime = Time.time + hitStunDuration;
 

@@ -5,11 +5,13 @@ public class MonsterDamageHandler : MonoBehaviour
 {
     private MonsterStat monsterStat;
     private MonsterAI monsterAI;
+    private MonsterCombat monsterCombat;
 
     private void Awake()
     {
         monsterStat = GetComponent<MonsterStat>();
         monsterAI = GetComponent<MonsterAI>();
+        monsterCombat = GetComponent<MonsterCombat>();
 
         if (monsterStat == null)
         {
@@ -20,12 +22,23 @@ public class MonsterDamageHandler : MonoBehaviour
         {
             Debug.LogError("MonsterDamageHandler: MonsterAI를 찾지 못했습니다.");
         }
+
+        if (monsterCombat == null)
+        {
+            Debug.LogError("MonsterDamageHandler: MonsterCombat를 찾지 못했습니다.");
+        }
     }
 
     public void ReceivePhysicalDamage(int damage, Transform attacker)
     {
         if (monsterStat == null) return;
         if (monsterStat.IsDead()) return;
+
+        // 🔥 공격 중 피격되면 공격 취소
+        if (monsterCombat != null && monsterCombat.IsAttackActive())
+        {
+            monsterCombat.CancelAttack();
+        }
 
         int finalDamage = monsterStat.CalculateFinalDamage(damage);
         monsterStat.ApplyFinalDamage(finalDamage, "physical");

@@ -33,6 +33,7 @@ public class MonsterAnimationEvent : MonoBehaviour
 
     public void EndAttack()
     {
+        monsterCombat?.EndAttack();
         monsterAI?.EndAttack();
     }
 }
