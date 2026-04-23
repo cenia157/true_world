@@ -24,6 +24,9 @@ public class PlayerWeaponHitBox : WeaponHitBox
 
         MonsterStat monster = other.GetComponentInParent<MonsterStat>();
         if (monster == null) return;
+
+        if (monster.IsDead()) return;
+
         if (hitMonsters.Contains(monster)) return;
 
         hitMonsters.Add(monster);
