@@ -8,12 +8,14 @@ public class PlayerDamageHandler : MonoBehaviour
 
     private PlayerStat playerStat;
     private PlayerMovement playerMovement;
+    private PlayerCombat playerCombat;
     private Animator animator;
 
     private void Awake()
     {
         playerStat = GetComponent<PlayerStat>();
         playerMovement = GetComponent<PlayerMovement>();
+        playerCombat = GetComponent<PlayerCombat>();
         animator = GetComponentInChildren<Animator>();
 
         if (playerStat == null)
@@ -71,6 +73,9 @@ public class PlayerDamageHandler : MonoBehaviour
         {
             if (!alreadyHitStunned)
             {
+                // 피격 순간 공격/콤보를 먼저 확실히 끊음
+                playerCombat?.CancelAttack();
+
                 PlayHitAnimation();
                 playerMovement?.StartHitStun(defaultHitStunDuration);
             }
@@ -97,8 +102,13 @@ public class PlayerDamageHandler : MonoBehaviour
     {
         if (animator == null) return;
 
+        animator.ResetTrigger("Attack1");
+        animator.ResetTrigger("Attack2");
+        animator.ResetTrigger("Attack3");
         animator.ResetTrigger("GuardHit");
         animator.ResetTrigger("Hit");
+
+        animator.SetBool("isGuarding", false);
         animator.SetTrigger("Hit");
     }
 
@@ -106,8 +116,12 @@ public class PlayerDamageHandler : MonoBehaviour
     {
         if (animator == null) return;
 
+        animator.ResetTrigger("Attack1");
+        animator.ResetTrigger("Attack2");
+        animator.ResetTrigger("Attack3");
         animator.ResetTrigger("Hit");
         animator.ResetTrigger("GuardHit");
+
         animator.SetTrigger("GuardHit");
     }
 }

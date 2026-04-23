@@ -495,10 +495,8 @@ public class PlayerMovement : MonoBehaviour
             EndGuard();
         }
 
-        if (stateController.IsState(PlayerState.Attack))
-        {
-            playerCombat?.CancelAttack();
-        }
+        // 공격 상태 여부와 상관없이 콤보/공격 예약까지 전부 취소
+        playerCombat?.CancelAttack();
 
         stateController.ChangeState(PlayerState.Hit);
 

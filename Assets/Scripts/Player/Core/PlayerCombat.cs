@@ -70,13 +70,16 @@ public class PlayerCombat : MonoBehaviour
         if (stateController == null || playerStat == null)
             return;
 
+        if (stateController.IsState(PlayerState.Hit) || stateController.IsState(PlayerState.Dead))
+            return;
+
         if (stateController.CanAttack())
         {
             StartComboAttack(1);
             return;
         }
 
-        if (stateController.IsState(PlayerState.Attack) && comboWindowOpen)
+        if (stateController.IsState(PlayerState.Attack) && comboWindowOpen && isAttackActive)
         {
             nextComboRequested = true;
             Debug.Log("PlayerCombat: 다음 콤보 입력 예약");
@@ -86,6 +89,10 @@ public class PlayerCombat : MonoBehaviour
     private void StartComboAttack(int comboStep)
     {
         if (comboStep < 1 || comboStep > maxComboStep)
+            return;
+
+        if (stateController != null &&
+            (stateController.IsState(PlayerState.Hit) || stateController.IsState(PlayerState.Dead)))
             return;
 
         float staminaCost = GetComboStaminaCost(comboStep);
@@ -141,6 +148,9 @@ public class PlayerCombat : MonoBehaviour
 
     public void OpenComboWindow()
     {
+        if (!isAttackActive)
+            return;
+
         comboWindowOpen = true;
         Debug.Log("PlayerCombat: 콤보 입력 가능");
     }
@@ -153,9 +163,15 @@ public class PlayerCombat : MonoBehaviour
 
     public void OnAttackAnimationEnd()
     {
-        // 이미 피격 등으로 취소된 공격이면 무시
         if (!isAttackActive)
             return;
+
+        if (stateController != null &&
+            (stateController.IsState(PlayerState.Hit) || stateController.IsState(PlayerState.Dead)))
+        {
+            CancelAttack();
+            return;
+        }
 
         DisableAttackHitbox();
         isAttackActive = false;
@@ -181,12 +197,25 @@ public class PlayerCombat : MonoBehaviour
     public void CancelAttack()
     {
         DisableAttackHitbox();
+
         isAttackActive = false;
         comboWindowOpen = false;
         nextComboRequested = false;
+        currentComboStep = 0;
 
         ResetAttackTriggers();
-        ResetCombo();
+
+        if (animator != null)
+        {
+            animator.ResetTrigger("Attack1");
+            animator.ResetTrigger("Attack2");
+            animator.ResetTrigger("Attack3");
+        }
+
+        if (stateController != null && stateController.IsState(PlayerState.Attack))
+        {
+            stateController.ChangeState(PlayerState.Idle);
+        }
 
         Debug.Log("PlayerCombat: 공격 강제 취소");
     }
