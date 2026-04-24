@@ -19,10 +19,15 @@ public class PlayerCameraController : MonoBehaviour
     [SerializeField] private float collisionRadius = 0.3f;
     [SerializeField] private float collisionOffset = 0.2f;
 
+    [Header("Cursor")]
+    [SerializeField] private KeyCode cursorToggleKey = KeyCode.LeftAlt;
+
     private float yaw;
     private float pitch;
+    private bool isCursorFree = false;
 
     public Transform Target => target;
+    public bool IsCursorFree => isCursorFree;
 
     private void Start()
     {
@@ -30,20 +35,30 @@ public class PlayerCameraController : MonoBehaviour
         yaw = angles.y;
         pitch = angles.x;
 
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        SetCursorFree(false);
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(cursorToggleKey))
+        {
+            SetCursorFree(!isCursorFree);
+        }
     }
 
     private void LateUpdate()
     {
         if (target == null) return;
 
-        float mouseX = Input.GetAxis("Mouse X");
-        float mouseY = Input.GetAxis("Mouse Y");
+        if (!isCursorFree)
+        {
+            float mouseX = Input.GetAxis("Mouse X");
+            float mouseY = Input.GetAxis("Mouse Y");
 
-        yaw += mouseX * mouseSensitivity;
-        pitch -= mouseY * mouseSensitivity;
-        pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
+            yaw += mouseX * mouseSensitivity;
+            pitch -= mouseY * mouseSensitivity;
+            pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
+        }
 
         Quaternion rotation = Quaternion.Euler(pitch, yaw, 0f);
         Vector3 targetPosition = target.position + targetOffset;
@@ -52,7 +67,6 @@ public class PlayerCameraController : MonoBehaviour
         Vector3 direction = (desiredPosition - targetPosition).normalized;
         float maxDistance = distance;
 
-        // SphereCast로 더 안정적으로 처리
         if (Physics.SphereCast(
             targetPosition,
             collisionRadius,
@@ -73,6 +87,22 @@ public class PlayerCameraController : MonoBehaviour
         }
 
         transform.rotation = rotation;
+    }
+
+    private void SetCursorFree(bool free)
+    {
+        isCursorFree = free;
+
+        if (isCursorFree)
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
     }
 
     public Vector3 GetCameraForwardOnPlane()
